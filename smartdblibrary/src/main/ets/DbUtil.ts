@@ -19,7 +19,9 @@ export default class DbUtil {
           args.forEach((paramValue, index) => {
             let paramName = Reflect.getMetadata(index, target, propertyKey)
             if (paramName) {
-              if (DbUtil.isNumber(paramValue) || DbUtil.isBool(paramValue)) {
+              if (paramName == "sql" && DbUtil.isString(paramValue)) {
+                newSql = paramValue.toString()
+              } else if (DbUtil.isNumber(paramValue) || DbUtil.isBool(paramValue)) {
                 newSql = DbUtil.replaceAllParam(newSql, paramName, paramValue.toString())
               } else if (DbUtil.isObject(paramValue)) {
                 Object.keys(paramValue).forEach((property) => {
@@ -101,6 +103,117 @@ export default class DbUtil {
     }
   }
 
+  /**
+   *  单个转换
+   *  非三方库
+   * @param clazz 需要实体类的类型 [必选。。比较难用，后面看能不能去掉]
+   */
+  static parseAndCreateObject<T>(resultSet: relationalStore.ResultSet, clazz: Object): any {
+    try {
+      let returnType = this.isBasicType(clazz) ? clazz : new (clazz as any)
+      let hasResult = resultSet.goToFirstRow()
+      if (!hasResult) {
+        return null;
+      }
+      if (DbUtil.isBasicType(returnType)) {
+        return DbUtil.readBasicType(resultSet, returnType)
+      } else {
+        return DbUtil.readStoreToEntry(resultSet, returnType)
+      }
+    } finally {
+      resultSet.close()
+    }
+  }
+
+  /**
+   *  多个转换
+   *  非三方库
+   * @param clazz 需要实体类的类型 [必选。。比较难用，后面看能不能去掉]
+   */
+  static parseAndCreateObjects<T>(resultSet: any, clazz: Object): T[] {
+    try {
+      let hasResult = resultSet.goToFirstRow()
+      if (!hasResult) {
+        return []
+      }
+
+      let result = []
+      for (let i = 0; i < resultSet.rowCount; i++) {
+        if (this.isBasicType(clazz)) {
+          let entryType = clazz
+          result.push(DbUtil.readBasicType(resultSet, entryType))
+        } else {
+          let entryType = new (clazz as any)
+          result.push(DbUtil.readStoreToEntry(resultSet, entryType))
+        }
+        resultSet.goToNextRow()
+      }
+      return result
+    } finally {
+      resultSet.close()
+    }
+  }
+
+  /**
+   *  读取数据库的数据转成实体类
+   *  非三方库
+   * @param clazz 需要实体类的类型 [必选。。比较难用，后面看能不能去掉]
+   */
+  static readStoreToEntry(resultSet: relationalStore.ResultSet, entry) {
+    let columnNames = resultSet.columnNames
+    columnNames.forEach((columnName) => {
+      let columnType: ColumnType = Reflect.getMetadata(DbUtil.COLUMN_TYPE, entry, columnName)
+      if (columnType == null) {
+        columnType = ColumnType.TEXT
+      }
+      switch (columnType) {
+        case ColumnType.TEXT:
+          entry[columnName] = resultSet.getString(resultSet.getColumnIndex(columnName))
+          break
+        case ColumnType.INTEGER:
+          entry[columnName] = resultSet.getLong(resultSet.getColumnIndex(columnName))
+          break
+        case ColumnType.FLOAT:
+          entry[columnName] = resultSet.getDouble(resultSet.getColumnIndex(columnName))
+          break
+        case ColumnType.BOOL:
+          entry[columnName] = resultSet.getDouble(resultSet.getColumnIndex(columnName)) ? true : false
+          break
+        case ColumnType.BLOB:
+          entry[columnName] = resultSet.getBlob(resultSet.getColumnIndex(columnName))
+          break
+      }
+    })
+    return entry
+  }
+  /**
+   *  克隆
+   *  非三方库
+   */
+  static deepClone<T>(obj: T): T {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+    let clone: any;
+    if (Array.isArray(obj)) {
+      clone = [] as any[];
+      for (let i = 0; i < obj.length; i++) {
+        clone[i] = this.deepClone(obj[i]);
+      }
+    } else {
+      clone = {} as T;
+      for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          clone[key] = this.deepClone(obj[key]);
+        }
+      }
+    }
+    return clone;
+  }
+
+
+
+
   static readBasicType(resultSet: relationalStore.ResultSet, returnType) {
     if (DbUtil.isString(returnType)) {
       return resultSet.getString(0)
@@ -111,6 +224,10 @@ export default class DbUtil {
     }
     return null
   }
+
+
+
+
 
   static readEntry(resultSet: relationalStore.ResultSet, entryType) {
     let entry = new entryType()

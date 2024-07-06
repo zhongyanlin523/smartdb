@@ -16,52 +16,44 @@ struct MultiDbPage {
             sql.Logger.error(e)
           }
         })
-        Button("插入User").onClick(() => {
-          try {
-            this.insertUser()
-          } catch (e) {
-            sql.Logger.error(e)
-          }
-        })
-        Button("插入数据(事务)").onClick(() => {
-          try {
-            this.insertTr()
-          } catch (e) {
-            sql.Logger.error(e)
-          }
-        })
       }.width('100%').margin({ bottom: '10vp' })
 
       Flex({ direction: FlexDirection.Row, wrap: FlexWrap.Wrap }) {
-        Button("查找单一数据").onClick(() => {
-          userDao2.findUser(this.insertId).then((result) => {
-            sql.Logger.info(JSON.stringify(result))
+        Button("查找单一实体类数据").onClick(() => {
+          userDao2.findOneUser((user: User) => {
+            sql.Logger.info('数据 =' + user.id + ' name = ' + user.name)
           })
         })
-        Button("查找单一数据name").onClick(() => {
-          userDao2.findUserName(this.insertId).then((result) => {
-            sql.Logger.info(JSON.stringify(result))
-          })
-        })
-      }.width('100%').margin({ bottom: '10vp' })
 
-      Flex({ direction: FlexDirection.Row, wrap: FlexWrap.Wrap }) {
-        Button("查找所有数据").onClick(() => {
-          userDao2.findAll().then((result) => {
-            sql.Logger.info(JSON.stringify(result))
+        Button("查找多条实体类数据").onClick(() => {
+          userDao2.findAllUser((userList: User[]) => {
+            userList.forEach((user: User) => {
+              sql.Logger.info('多条数据 =' + user.id + ' name = ' + user.name)
+            })
           })
         })
-        Button("查找所有数据id").onClick(() => {
-          userDao2.findAllIds().then((result) => {
-            sql.Logger.info(JSON.stringify(result))
-          })
-        })
+
         Button("查找所有数据count").onClick(() => {
-          userDao2.findAllCount().then((result) => {
+          userDao2.findAllCount((result) => {
             sql.Logger.info(JSON.stringify(result))
           })
         })
+
+        Button("查找单一名称数据").onClick(() => {
+          userDao2.findOneName((name: string) => {
+            sql.Logger.info('数据 =' + name)
+          })
+        })
+
+        Button("查找多条名称数据").onClick(() => {
+          userDao2.findAllName((userList: string[]) => {
+            userList.forEach((name: string) => {
+              sql.Logger.info('多条数据 =' + name)
+            })
+          })
+        })
       }.width('100%').margin({ bottom: '10vp' })
+
 
       Flex({ direction: FlexDirection.Row, wrap: FlexWrap.Wrap }) {
         Button("删除所有数据").onClick(() => {
@@ -70,6 +62,7 @@ struct MultiDbPage {
           })
         })
       }.width('100%').margin({ bottom: '10vp' })
+
     }
   }
 
@@ -80,32 +73,7 @@ struct MultiDbPage {
   async insert() {
     this.randomGenInsertId()
     sql.Logger.info("开始插入：" + this.insertId)
-    await userDao2.insert(this.insertId, "name" + this.insertId)
-    sql.Logger.info("插入成功")
-
-    this.randomGenInsertId()
-    sql.Logger.info("开始插入：" + this.insertId)
-    let insertId2 = await userDao2.insertReturnRowId("name" + this.insertId)
-    sql.Logger.info("插入成功:" + insertId2)
-  }
-
-  async insertUser() {
-    this.randomGenInsertId()
-    sql.Logger.info("开始插入：" + this.insertId)
-    let insertId = await userDao2.insertUser(new User(this.insertId, "name" + this.insertId))
-    sql.Logger.info("插入成功:" + insertId)
-  }
-
-  @sql.Transactional()
-  @sql.DbName("test2")
-  async insertTr() {
-    this.randomGenInsertId()
-    sql.Logger.info("开始插入：" + this.insertId)
-    await userDao2.insert(this.insertId, "name" + this.insertId)
-
-    this.randomGenInsertId()
-    sql.Logger.info("开始插入2：" + this.insertId)
-    await userDao2.insert(this.insertId, "name" + this.insertId)
-    throw new Error("插入错误")
+    let isSuccess = await userDao2.insert(this.insertId, "name" + this.insertId)
+    sql.Logger.info("是否插入成功=" + isSuccess)
   }
 }

@@ -1,6 +1,6 @@
 {
   "module": {
-    "name": "library",
+    "name": "smartdblibrary",
     "type": "har",
     "deviceTypes": [
       "default",

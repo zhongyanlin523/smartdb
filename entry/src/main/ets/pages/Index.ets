@@ -1,11 +1,14 @@
 import sql from 'smartdb'
 import { User, userDao } from '../UserDao'
 import router from '@ohos.router'
+import { MainDBHelper } from '../MainDBHelper'
 
 @Entry
 @Component
 struct Index {
   insertId: number = 2000
+  mSql: string = `select * from db_user`
+  mStringSql: string = `select name from db_user`
 
   build() {
     Column() {
@@ -17,16 +20,14 @@ struct Index {
             sql.Logger.error(e)
           }
         })
-        Button("插入User").onClick(() => {
-          try {
-            this.insertUser()
-          } catch (e) {
-            sql.Logger.error(e)
-          }
-        })
         Button("插入数据(事务)").onClick(() => {
           try {
-            this.insertTr()
+            MainDBHelper.getInstance().execTransactional(() => {
+              this.randomGenInsertId()
+              userDao.insert(this.insertId, '张三' + this.insertId)
+              userDao.insert(this.insertId + 1, '李四' + this.insertId)
+              userDao.insert(this.insertId + 2, '王五' + this.insertId)
+            })
           } catch (e) {
             sql.Logger.error(e)
           }
@@ -34,35 +35,41 @@ struct Index {
       }.width('100%').margin({ bottom: '10vp' })
 
       Flex({ direction: FlexDirection.Row, wrap: FlexWrap.Wrap }) {
-        Button("查找单一数据").onClick(() => {
-          userDao.findUser(this.insertId).then((result) => {
+        Button("查找单一实体类数据").onClick(() => {
+          userDao.findOneUser((user: User) => {
+            sql.Logger.info('数据 =' + user.id + ' name = ' + user.name)
+          })
+        })
+
+        Button("查找多条实体类数据").onClick(() => {
+          userDao.findAllUser((userList: User[]) => {
+            userList.forEach((user: User) => {
+              sql.Logger.info('多条数据 =' + user.id + ' name = ' + user.name)
+            })
+          })
+        })
+
+        Button("查找所有数据count").onClick(() => {
+          userDao.findAllCount((result) => {
             sql.Logger.info(JSON.stringify(result))
           })
         })
-        Button("查找单一数据name").onClick(() => {
-          userDao.findUserName(this.insertId).then((result) => {
-            sql.Logger.info(JSON.stringify(result))
+
+        Button("查找单一名称数据").onClick(() => {
+          userDao.findOneName((name: string) => {
+            sql.Logger.info('数据 =' + name)
+          })
+        })
+
+        Button("查找多条名称数据").onClick(() => {
+          userDao.findAllName((userList: string[]) => {
+            userList.forEach((name: string) => {
+              sql.Logger.info('多条数据 =' + name)
+            })
           })
         })
       }.width('100%').margin({ bottom: '10vp' })
 
-      Flex({ direction: FlexDirection.Row, wrap: FlexWrap.Wrap }) {
-        Button("查找所有数据").onClick(() => {
-          userDao.findAll().then((result) => {
-            sql.Logger.info(JSON.stringify(result))
-          })
-        })
-        Button("查找所有数据id").onClick(() => {
-          userDao.findAllIds().then((result) => {
-            sql.Logger.info(JSON.stringify(result))
-          })
-        })
-        Button("查找所有数据count").onClick(() => {
-          userDao.findAllCount().then((result) => {
-            sql.Logger.info(JSON.stringify(result))
-          })
-        })
-      }.width('100%').margin({ bottom: '10vp' })
 
       Flex({ direction: FlexDirection.Row, wrap: FlexWrap.Wrap }) {
         Button("删除所有数据").onClick(() => {
@@ -87,31 +94,9 @@ struct Index {
   async insert() {
     this.randomGenInsertId()
     sql.Logger.info("开始插入：" + this.insertId)
-    await userDao.insert(this.insertId, "name" + this.insertId)
-    sql.Logger.info("插入成功")
-
-    this.randomGenInsertId()
-    sql.Logger.info("开始插入：" + this.insertId)
-    let insertId2 = await userDao.insertReturnRowId("name" + this.insertId)
-    sql.Logger.info("插入成功:" + insertId2)
+    let isSuccess = await userDao.insert(this.insertId, "name" + this.insertId)
+    sql.Logger.info("是否插入成功=" + isSuccess)
   }
 
-  async insertUser() {
-    this.randomGenInsertId()
-    sql.Logger.info("开始插入：" + this.insertId)
-    let insertId = await userDao.insertUser(new User(this.insertId, "name" + this.insertId))
-    sql.Logger.info("插入成功:" + insertId)
-  }
-
-  @sql.Transactional()
-  async insertTr() {
-    this.randomGenInsertId()
-    sql.Logger.info("开始插入：" + this.insertId)
-    await userDao.insert(this.insertId, "name" + this.insertId)
-
-    this.randomGenInsertId()
-    sql.Logger.info("开始插入2：" + this.insertId)
-    await userDao.insert(this.insertId, "name" + this.insertId)
-    throw new Error("插入错误")
-  }
 }
+
