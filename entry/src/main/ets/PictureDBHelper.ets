@@ -1,21 +1,73 @@
 import relationalStore from '@ohos.data.relationalStore';
 import sql from 'smartdb'
 import DbUtil from 'smartdb/src/main/ets/DbUtil';
-import AppDB from './AppDB';
+import { AppDBConst } from './AppDBConst';
 
 /**
  * @Description:图片数据库操作类
  * @author: create by zyl on 2024/07/03
  */
-export class PictureDBHelper extends sql.DbOpenHelper {
+class PictureDBHelper extends sql.DbOpenHelper {
   constructor() {
     super()
   }
-  static readonly  PICTURE_DB_NAME: string = "PICTURE_DB_NAME"
-  
+  // <editor-fold defaultstate="collapsed" desc="调用源码的注解方式，不开放使用">
+
+  /**
+   * @Description:执行sql
+   * @author: create by zyl on 2024/07/03
+   */
+  @sql.Sql("#sql")
+  @sql.DbName(AppDBConst.PICTURE_DB_NAME)
+  private annotationSql(@sql.Param("sql") mSql: string): Promise<void> {
+    return sql.PromiseNull();
+  }
+
+  /**
+   * @Description:执行sql
+   * @author: create by zyl on 2024/07/03
+   */
+  @sql.SqlInsert("#sql")
+  @sql.DbName(AppDBConst.PICTURE_DB_NAME)
+  private annotationSqlInsert(@sql.Param("sql") mSql: string): Promise<void> {
+    return sql.PromiseNull();
+  }
+
+  /**
+   * @Description:查询
+   * @author: create by zyl on 2024/07/03
+   */
+  @sql.SqlQuery("#sql",true)
+  @sql.DbName(AppDBConst.PICTURE_DB_NAME)
+  private annotationQuery(@sql.Param("sql") mSql: string): Promise<relationalStore.ResultSet> {
+    return sql.PromiseNull();
+  }
+
+  /**
+   * @Description:执行事务
+   * @param: execList 事务清单
+   */
+  @sql.Transactional()
+  @sql.DbName(AppDBConst.PICTURE_DB_NAME)
+  async annotationExecTransactional(execList: () => void) {
+    execList()
+  }
+
+  // </editor-fold>
+
   async onCreate(db: relationalStore.RdbStore) {
-    //用户表
+    //用户表[测试用]
     await this.annotationSql("create table if not exists db_user ( id INTEGER  PRIMARY KEY AUTOINCREMENT ,name TEXT not null)")
+    //图片表
+    let mImageCreateSql = `CREATE TABLE if not exists Woolinte_PtypeImage(
+     [Nub] integer PRIMARY KEY autoincRement,
+     [PtypeID_] [varchar](60) DEFAULT '',
+     [NubCount] [varchar](60) DEFAULT '',
+     [Image] [varchar](8000) DEFAULT '',
+     [xiwamaxtime] [INTEGER] DEFAULT ''
+     ); `
+    await this.annotationSql(mImageCreateSql);
+
   }
 
   async onUpgrade(db: relationalStore.RdbStore, oldVersion: number, newVersion: number) {
@@ -34,57 +86,12 @@ export class PictureDBHelper extends sql.DbOpenHelper {
   }
 
 
-
-  // <editor-fold defaultstate="collapsed" desc="源码为注解方式，需要转一层，不直接使用源码">
-
-  /**
-   * @Description:执行sql
-   * @author: create by zyl on 2024/07/03
-   */
-  @sql.Sql("#sql")
-  @sql.DbName(PictureDBHelper.PICTURE_DB_NAME)
-  private annotationSql(@sql.Param("sql") mSql: string): Promise<void> {
-    console.debug("自定义sql：" + mSql)
-    return new Promise<void>((resolve, reject) => {
-      console.debug("自定义sql：resolve" + resolve)
-      console.debug("自定义sql：reject" + reject)
-    })
-  }
-
-  /**
-   * @Description:执行sql
-   * @author: create by zyl on 2024/07/03
-   */
-  @sql.SqlInsert("#sql")
-  @sql.DbName(PictureDBHelper.PICTURE_DB_NAME)
-  private annotationSqlInsert(@sql.Param("sql") mSql: string): Promise<void> {
-    sql.Logger.info("自定义sql：" + mSql)
-    return sql.PromiseNull();
-  }
-
-  /**
-   * @Description:查询
-   * @author: create by zyl on 2024/07/03
-   */
-  @sql.SqlQuery("#sql",true)
-  @sql.DbName(PictureDBHelper.PICTURE_DB_NAME)
-  private annotationQuery(@sql.Param("sql") mSql: string): Promise<relationalStore.ResultSet> {
-    sql.Logger.info("自定义sql：" + mSql)
-    // 如果不需要使用reject，可以简化Promise的构造
-    return sql.PromiseNull();
-  }
-
-  // </editor-fold>
-
-
   /**
    * @Description:执行事务
    * @param: execList 事务清单
    */
-  @sql.Transactional()
-  @sql.DbName(PictureDBHelper.PICTURE_DB_NAME)
   async execTransactional(execList: () => void) {
-    execList()
+    this.annotationExecTransactional(execList)
   }
 
   /**
@@ -178,7 +185,6 @@ export class PictureDBHelper extends sql.DbOpenHelper {
     })
   }
 
-
   /**
    * @Description:查询数组
    * @param mSql sql语句
@@ -191,3 +197,5 @@ export class PictureDBHelper extends sql.DbOpenHelper {
     })
   }
 }
+
+export default PictureDBHelper.getInstance()

@@ -1,27 +1,34 @@
-import sql from 'smartdb';
-import { MainDBHelper } from './MainDBHelper';
+import MainDBHelper from './MainDBHelper';
 
 
 export class User {
-  @sql.SqlColumn(sql.ColumnType.INTEGER)
-  id: number = 0
-  @sql.SqlColumn(sql.ColumnType.TEXT)
-  name: string = ''
+  id: number
+  name: string
 
-  constructor() {
+  constructor(id: number, name: string) {
+    this.id = id
+    this.name = name
   }
-
-  // constructor(id: number, name: string) {
-  //   this.id = id
-  //   this.name = name
-  // }
-
 }
 
 class UserDao {
   table: string = "db_user"
 
   constructor() {
+  }
+
+  /**
+   * @Description:事务新增
+   * @param id
+   * @param name
+   * @returns Promise<boolean> 成功true or 失败false
+   */
+  execTransactional(id: number): Promise<void> {
+    return MainDBHelper.execTransactional(() => {
+      this.insert(id + 0, '张三' + id)
+      this.insert(id + 1, '李四' + id)
+      this.insert(id + 2, '王五' + id)
+    })
   }
 
   /**
@@ -34,7 +41,7 @@ class UserDao {
     let cv = new Map<string, string | number>()
     cv.set("id", id)
     cv.set("name", name)
-    return MainDBHelper.getInstance().insert(this.table, cv)
+    return MainDBHelper.insert(this.table, cv)
   }
 
   /**
@@ -42,7 +49,7 @@ class UserDao {
    * @returns
    */
   findAllCount(succeed: (response: number) => void) {
-    MainDBHelper.getInstance().queryItemData<number>(`select count(*) from ${this.table}`, Number, succeed)
+    MainDBHelper.queryItemData<number>(`select count(*) from ${this.table}`, Number, succeed)
   }
 
   /**
@@ -50,7 +57,7 @@ class UserDao {
    * @returns
    */
   findAllName(succeed: (userList: string[]) => void) {
-    MainDBHelper.getInstance().queryListData<string>(`select name from ${this.table}`, String, succeed)
+    MainDBHelper.queryListData<string>(`select name from ${this.table}`, String, succeed)
   }
 
   /**
@@ -58,7 +65,7 @@ class UserDao {
    * @returns
    */
   findOneName(succeed: (name: string) => void) {
-    MainDBHelper.getInstance().queryItemData<string>(`select name from ${this.table}`, String, succeed)
+    MainDBHelper.queryItemData<string>(`select name from ${this.table}`, String, succeed)
   }
 
   /**
@@ -66,7 +73,7 @@ class UserDao {
    * @returns
    */
   findAllUser(succeed: (userList: User[]) => void) {
-    MainDBHelper.getInstance().queryListData<User>(`select * from ${this.table}`, User, succeed)
+    MainDBHelper.queryListData<User>(`select * from ${this.table}`, User, succeed)
   }
 
   /**
@@ -74,7 +81,7 @@ class UserDao {
    * @returns
    */
   findOneUser(succeed: (name: User) => void) {
-    MainDBHelper.getInstance().queryItemData<User>(`select * from ${this.table}`, User, succeed)
+    MainDBHelper.queryItemData<User>(`select * from ${this.table}`, User, succeed)
   }
 
   /**
@@ -82,7 +89,7 @@ class UserDao {
    * @returns
    */
   deleteAll(): Promise<void> {
-    return MainDBHelper.getInstance().execSQL(`delete from ${this.table} `)
+    return MainDBHelper.execSQL(`delete from ${this.table} `)
   }
 }
 

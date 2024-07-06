@@ -1,10 +1,7 @@
-import sql from "smartdb"
-import { PictureDBHelper } from './PictureDBHelper';
+import PictureDBHelper from './PictureDBHelper';
 
 export class User {
-  @sql.SqlColumn(sql.ColumnType.INTEGER)
   id: number
-  @sql.SqlColumn(sql.ColumnType.TEXT)
   name: string
 
   constructor(id: number, name: string) {
@@ -13,11 +10,24 @@ export class User {
   }
 }
 
-@sql.DbNameClass("test2")
 class UserDao2 {
   table: string = "db_user"
 
   constructor() {
+  }
+
+  /**
+   * @Description:事务新增
+   * @param id
+   * @param name
+   * @returns Promise<boolean> 成功true or 失败false
+   */
+  execTransactional(id: number): Promise<void> {
+    return PictureDBHelper.execTransactional(() => {
+      this.insert(id + 0, '张三' + id)
+      this.insert(id + 1, '李四' + id)
+      this.insert(id + 2, '王五' + id)
+    })
   }
 
   /**
@@ -30,7 +40,7 @@ class UserDao2 {
     let cv = new Map<string, string | number>()
     cv.set("id", id)
     cv.set("name", name)
-    return PictureDBHelper.getInstance().insert(this.table, cv)
+    return PictureDBHelper.insert(this.table, cv)
   }
 
   /**
@@ -38,7 +48,7 @@ class UserDao2 {
    * @returns
    */
   findAllCount(succeed: (response: number) => void) {
-    PictureDBHelper.getInstance().queryItemData<number>(`select count(*) from ${this.table}`, Number, succeed)
+    PictureDBHelper.queryItemData<number>(`select count(*) from ${this.table}`, Number, succeed)
   }
 
   /**
@@ -46,7 +56,7 @@ class UserDao2 {
    * @returns
    */
   findAllName(succeed: (userList: string[]) => void) {
-    PictureDBHelper.getInstance().queryListData<string>(`select name from ${this.table}`, String, succeed)
+    PictureDBHelper.queryListData<string>(`select name from ${this.table}`, String, succeed)
   }
 
   /**
@@ -54,7 +64,7 @@ class UserDao2 {
    * @returns
    */
   findOneName(succeed: (name: string) => void) {
-    PictureDBHelper.getInstance().queryItemData<string>(`select name from ${this.table}`, String, succeed)
+    PictureDBHelper.queryItemData<string>(`select name from ${this.table}`, String, succeed)
   }
 
   /**
@@ -62,7 +72,7 @@ class UserDao2 {
    * @returns
    */
   findAllUser(succeed: (userList: User[]) => void) {
-    PictureDBHelper.getInstance().queryListData<User>(`select * from ${this.table}`, User, succeed)
+    PictureDBHelper.queryListData<User>(`select * from ${this.table}`, User, succeed)
   }
 
   /**
@@ -70,7 +80,7 @@ class UserDao2 {
    * @returns
    */
   findOneUser(succeed: (name: User) => void) {
-    PictureDBHelper.getInstance().queryItemData<User>(`select * from ${this.table}`, User, succeed)
+    PictureDBHelper.queryItemData<User>(`select * from ${this.table}`, User, succeed)
   }
 
   /**
@@ -78,7 +88,7 @@ class UserDao2 {
    * @returns
    */
   deleteAll(): Promise<void> {
-    return PictureDBHelper.getInstance().execSQL(`delete from ${this.table} `)
+    return PictureDBHelper.execSQL(`delete from ${this.table} `)
   }
 }
 

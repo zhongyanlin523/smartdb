@@ -7,11 +7,49 @@ import DbUtil from 'smartdb/src/main/ets/DbUtil';
  * @author: create by zyl on 2024/07/03
  * @see annotationSql
  */
-export class MainDBHelper extends sql.DbOpenHelper {
+class MainDBHelper extends sql.DbOpenHelper {
   constructor() {
     super()
   }
+  // <editor-fold defaultstate="collapsed" desc="调用源码的注解方式，不开放使用">
 
+  /**
+   * @Description:执行sql
+   * @author: create by zyl on 2024/07/03
+   */
+  @sql.Sql("#sql")
+  private annotationSql(@sql.Param("sql") mSql: string): Promise<void> {
+    return sql.PromiseNull();
+  }
+
+  /**
+   * @Description:执行sql
+   * @author: create by zyl on 2024/07/03
+   */
+  @sql.SqlInsert("#sql")
+  private annotationSqlInsert(@sql.Param("sql") mSql: string): Promise<void> {
+    return sql.PromiseNull();
+  }
+
+  /**
+   * @Description:查询
+   * @author: create by zyl on 2024/07/03
+   */
+  @sql.SqlQuery("#sql",true)
+  private annotationQuery(@sql.Param("sql") mSql: string): Promise<relationalStore.ResultSet> {
+    return sql.PromiseNull();
+  }
+
+  /**
+   * @Description:执行事务
+   * @param: execList 事务清单
+   */
+  @sql.Transactional()
+  private annotationExecTransactional(execList: () => void) {
+    execList()
+  }
+
+  // </editor-fold>
   private static _instance: MainDBHelper;
 
   public static getInstance(): MainDBHelper {
@@ -22,7 +60,7 @@ export class MainDBHelper extends sql.DbOpenHelper {
   }
 
   async onCreate(db: relationalStore.RdbStore) {
-    //用户表
+    //用户表[测试用]
     await this.annotationSql("create table if not exists db_user ( id INTEGER  PRIMARY KEY AUTOINCREMENT ,name TEXT not null)")
   }
 
@@ -33,52 +71,13 @@ export class MainDBHelper extends sql.DbOpenHelper {
   }
 
 
-  // <editor-fold defaultstate="collapsed" desc="源码为注解方式，需要转一层，不直接使用源码">
-
-  /**
-   * @Description:执行sql
-   * @author: create by zyl on 2024/07/03
-   */
-  @sql.Sql("#sql")
-  private annotationSql(@sql.Param("sql") mSql: string): Promise<void> {
-    console.debug("自定义sql：" + mSql)
-    return new Promise<void>((resolve, reject) => {
-      console.debug("自定义sql：resolve" + resolve)
-      console.debug("自定义sql：reject" + reject)
-    })
-  }
-
-  /**
-   * @Description:执行sql
-   * @author: create by zyl on 2024/07/03
-   */
-  @sql.SqlInsert("#sql")
-  private annotationSqlInsert(@sql.Param("sql") mSql: string): Promise<void> {
-    sql.Logger.info("自定义sql：" + mSql)
-    return sql.PromiseNull();
-  }
-
-  /**
-   * @Description:查询
-   * @author: create by zyl on 2024/07/03
-   */
-  @sql.SqlQuery("#sql",true)
-  private annotationQuery(@sql.Param("sql") mSql: string): Promise<relationalStore.ResultSet> {
-    sql.Logger.info("自定义sql：" + mSql)
-    // 如果不需要使用reject，可以简化Promise的构造
-    return sql.PromiseNull();
-  }
-
-  // </editor-fold>
-
 
   /**
    * @Description:执行事务
    * @param: execList 事务清单
    */
-  @sql.Transactional()
   async execTransactional(execList: () => void) {
-    execList()
+    this.annotationExecTransactional(execList)
   }
 
   /**
@@ -172,7 +171,6 @@ export class MainDBHelper extends sql.DbOpenHelper {
     })
   }
 
-
   /**
    * @Description:查询数组
    * @param mSql sql语句
@@ -185,6 +183,8 @@ export class MainDBHelper extends sql.DbOpenHelper {
     })
   }
 }
+
+export default MainDBHelper.getInstance()
 
 
 

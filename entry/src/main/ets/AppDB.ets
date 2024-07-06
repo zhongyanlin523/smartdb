@@ -1,11 +1,10 @@
 import sql from 'smartdb';
 import hilog from '@ohos.hilog';
-import { MainDBHelper } from './MainDBHelper';
-import { PictureDBHelper } from './PictureDBHelper';
-export interface ConstructorArgs {
-  id: number;
-  name: string;
-}
+import MainDBHelper from './MainDBHelper';
+import PictureDBHelper from './PictureDBHelper';
+import { AppDBConst } from './AppDBConst';
+
+
 /**
  * AppDB类用于初始化应用程序的数据库
  */
@@ -19,18 +18,14 @@ class AppDB {
     return AppDB._instance;
   }
 
-  static DB_VERSION: number = 3
-
-
   /**
    * @Description: 测试用，直接加载两个db
    */
-  initDb(context: Context) {
+  initDb(context: Context, ztCode: string) {
     sql.Logger.setLogLevel(hilog.LogLevel.DEBUG)
-    sql.dbHelper.initDb(context, "test.db", AppDB.DB_VERSION, MainDBHelper.getInstance())
-    sql.createDbHelper(PictureDBHelper.PICTURE_DB_NAME).initDb(context, "test2.db", AppDB.DB_VERSION, PictureDBHelper.getInstance())
+    sql.dbHelper.initDb(context, `${ztCode}.db`, AppDBConst.MAIN_DB_VERSION, MainDBHelper)
+    sql.createDbHelper(AppDBConst.PICTURE_DB_NAME).initDb(context, `pic_${ztCode}.db`, AppDBConst.PICTURE_DB_VERSION, PictureDBHelper)
   }
-
 
   // <editor-fold defaultstate="collapsed" desc="初始化主数据库">
   /**
@@ -43,7 +38,7 @@ class AppDB {
    * @param ztCode 一个字符串代码，用于生成数据库文件的名称，数据库文件名为`ztCode.db`。
    */
   initMainDb(context: Context, ztCode: string) {
-    sql.dbHelper.initDb(context, `${ztCode}.db`, AppDB.DB_VERSION, MainDBHelper.getInstance())
+    sql.dbHelper.initDb(context, `${ztCode}.db`, AppDBConst.MAIN_DB_VERSION, MainDBHelper)
   }
 
   // </editor-fold>
@@ -59,7 +54,7 @@ class AppDB {
    * @param ztCode 一个字符串代码，用于生成数据库文件的名称，数据库文件名为`pic_ztCode.db`。
    */
   initPictureDb(context: Context, ztCode: string) {
-    sql.createDbHelper("test2").initDb(context, `pic_${ztCode}.db`, AppDB.DB_VERSION, PictureDBHelper.getInstance())
+    sql.createDbHelper(AppDBConst.PICTURE_DB_NAME).initDb(context, `pic_${ztCode}.db`, AppDBConst.PICTURE_DB_VERSION, PictureDBHelper)
   }
 
   // </editor-fold>

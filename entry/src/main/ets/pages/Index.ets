@@ -1,14 +1,11 @@
 import sql from 'smartdb'
 import { User, userDao } from '../UserDao'
 import router from '@ohos.router'
-import { MainDBHelper } from '../MainDBHelper'
 
 @Entry
 @Component
 struct Index {
   insertId: number = 2000
-  mSql: string = `select * from db_user`
-  mStringSql: string = `select name from db_user`
 
   build() {
     Column() {
@@ -22,12 +19,8 @@ struct Index {
         })
         Button("插入数据(事务)").onClick(() => {
           try {
-            MainDBHelper.getInstance().execTransactional(() => {
-              this.randomGenInsertId()
-              userDao.insert(this.insertId, '张三' + this.insertId)
-              userDao.insert(this.insertId + 1, '李四' + this.insertId)
-              userDao.insert(this.insertId + 2, '王五' + this.insertId)
-            })
+            this.randomGenInsertId()
+            userDao.execTransactional(this.insertId)
           } catch (e) {
             sql.Logger.error(e)
           }
@@ -97,6 +90,5 @@ struct Index {
     let isSuccess = await userDao.insert(this.insertId, "name" + this.insertId)
     sql.Logger.info("是否插入成功=" + isSuccess)
   }
-
 }
 
