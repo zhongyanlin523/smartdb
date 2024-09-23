@@ -10,18 +10,24 @@ const dbHelpers = {}
 
 export class DbHelper {
   dbContext: any;
-  dbName: string = '';
-  customDir: string = '';
+  storeConfig: relationalStore.StoreConfig
   dbVersion: number = 0
   rdbStore: relationalStore.RdbStore
 
-  async initDb(context: any, dbName: string, customDir: string, dbVersion: number, dbOpenHelper: DbOpenHelper) {
+  async initDb(context: any, dbName: string, dbVersion: number, dbOpenHelper: DbOpenHelper) {
+    await this.initDbWithConfig(context, {
+      name: dbName,
+      securityLevel: relationalStore.SecurityLevel.S1
+    }, dbVersion, dbOpenHelper)
+  }
+
+  async initDbWithConfig(context: any, storeConfig: relationalStore.StoreConfig, dbVersion: number, dbOpenHelper: DbOpenHelper) {
     if (dbVersion <= 0) {
       throw new Error("dbVersion must > 0");
     }
+    let dbName = storeConfig.name;
     this.dbContext = context;
-    this.dbName = dbName;
-    this.customDir = customDir;
+    this.storeConfig = storeConfig
     this.dbVersion = dbVersion
     if (this.rdbStore) {
       this.rdbStore.close()
@@ -58,11 +64,7 @@ export class DbHelper {
       if (this.rdbStore) {
         resolve(this.rdbStore)
       } else {
-        relationalStore.getRdbStore(this.dbContext, {
-          name: this.dbName,
-          customDir: this.customDir,
-          securityLevel: relationalStore.SecurityLevel.S1
-        }).then((store) => {
+        relationalStore.getRdbStore(this.dbContext, this.storeConfig).then((store) => {
           this.rdbStore = store
           resolve(store)
         }).catch((e) => {
