@@ -11,17 +11,20 @@ const dbHelpers = {}
 export class DbHelper {
   dbContext: any;
   dbName: string = '';
+  customDir: string = '';
   dbVersion: number = 0
   rdbStore: relationalStore.RdbStore
 
-  async initDb(context: any, dbName: string, dbVersion: number, dbOpenHelper: DbOpenHelper) {
+  async initDb(context: any, dbName: string, customDir: string, dbVersion: number, dbOpenHelper: DbOpenHelper) {
     if (dbVersion <= 0) {
       throw new Error("dbVersion must > 0");
     }
     this.dbContext = context;
     this.dbName = dbName;
+    this.customDir = customDir;
     this.dbVersion = dbVersion
     if (this.rdbStore) {
+      this.rdbStore.close()
       this.rdbStore = null
     }
     let dbPreferenceKey = `smartdb_preference`
@@ -57,6 +60,7 @@ export class DbHelper {
       } else {
         relationalStore.getRdbStore(this.dbContext, {
           name: this.dbName,
+          customDir: this.customDir,
           securityLevel: relationalStore.SecurityLevel.S1
         }).then((store) => {
           this.rdbStore = store
@@ -104,7 +108,7 @@ export const defaultDbHelper = createDbHelper("default")
  */
 export function createDbHelper(key: string): DbHelper {
   let dbHelper = new DbHelper()
-  dbHelpers[key]=dbHelper
+  dbHelpers[key] = dbHelper
   return dbHelper
 }
 

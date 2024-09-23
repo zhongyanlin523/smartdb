@@ -23,8 +23,8 @@ class AppDB {
    */
   initDb(context: Context, ztCode: string) {
     sql.Logger.setLogLevel(hilog.LogLevel.DEBUG)
-    sql.dbHelper.initDb(context, `${ztCode}.db`, AppDBConst.MAIN_DB_VERSION, MainDBHelper)
-    sql.createDbHelper(AppDBConst.PICTURE_DB_NAME).initDb(context, `pic_${ztCode}.db`, AppDBConst.PICTURE_DB_VERSION, PictureDBHelper)
+    // sql.dbHelper.initDb(context, `${ztCode}.db`, AppDBConst.MAIN_DB_VERSION, MainDBHelper)
+    // sql.createDbHelper(AppDBConst.PICTURE_DB_NAME).initDb(context, `pic_${ztCode}.db`, AppDBConst.PICTURE_DB_VERSION, PictureDBHelper)
   }
 
   // <editor-fold defaultstate="collapsed" desc="初始化主数据库">
@@ -38,7 +38,7 @@ class AppDB {
    * @param ztCode 一个字符串代码，用于生成数据库文件的名称，数据库文件名为`ztCode.db`。
    */
   initMainDb(context: Context, ztCode: string) {
-    sql.dbHelper.initDb(context, `${ztCode}.db`, AppDBConst.MAIN_DB_VERSION, MainDBHelper)
+    // sql.dbHelper.initDb(context, `${ztCode}.db`, AppDBConst.MAIN_DB_VERSION, MainDBHelper)
   }
 
   // </editor-fold>
@@ -54,7 +54,7 @@ class AppDB {
    * @param ztCode 一个字符串代码，用于生成数据库文件的名称，数据库文件名为`pic_ztCode.db`。
    */
   initPictureDb(context: Context, ztCode: string) {
-    sql.createDbHelper(AppDBConst.PICTURE_DB_NAME).initDb(context, `pic_${ztCode}.db`, AppDBConst.PICTURE_DB_VERSION, PictureDBHelper)
+    // sql.createDbHelper(AppDBConst.PICTURE_DB_NAME).initDb(context, `pic_${ztCode}.db`, AppDBConst.PICTURE_DB_VERSION, PictureDBHelper)
   }
 
   // </editor-fold>

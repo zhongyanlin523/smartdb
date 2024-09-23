@@ -91,6 +91,8 @@ class UserDao {
   deleteAll(): Promise<void> {
     return MainDBHelper.execSQL(`delete from ${this.table} `)
   }
+
+
 }
 
 export const userDao = new UserDao()
