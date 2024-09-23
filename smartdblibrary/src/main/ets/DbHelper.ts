@@ -10,13 +10,15 @@ const dbHelpers = {}
 
 export class DbHelper {
   dbContext: any;
+  customDir: string = '';
   storeConfig: relationalStore.StoreConfig
   dbVersion: number = 0
   rdbStore: relationalStore.RdbStore
 
-  async initDb(context: any, dbName: string, dbVersion: number, dbOpenHelper: DbOpenHelper) {
+  async initDb(context: any, dbName: string, customDir: string, dbVersion: number, dbOpenHelper: DbOpenHelper) {
     await this.initDbWithConfig(context, {
       name: dbName,
+      customDir: this.customDir,
       securityLevel: relationalStore.SecurityLevel.S1
     }, dbVersion, dbOpenHelper)
   }

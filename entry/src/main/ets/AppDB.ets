@@ -38,7 +38,7 @@ class AppDB {
    * @param ztCode 一个字符串代码，用于生成数据库文件的名称，数据库文件名为`ztCode.db`。
    */
   initMainDb(context: Context, ztCode: string) {
-    // sql.dbHelper.initDb(context, `${ztCode}.db`, AppDBConst.MAIN_DB_VERSION, MainDBHelper)
+    sql.dbHelper.initDb(context, `${ztCode}.db`, "", AppDBConst.MAIN_DB_VERSION, MainDBHelper)
   }
 
   // </editor-fold>
