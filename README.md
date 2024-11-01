@@ -1,4 +1,4 @@
-# smartdb
+# zmkjsmartdb
 
 ## 简介
 
@@ -7,7 +7,7 @@
 ## 下载安装
 
 ```
-ohpm install @liushengyi/smartdb --save
+ohpm install @zhongyanlin523/smartdb --save
 ```
 
 ## 使用
@@ -15,7 +15,7 @@ ohpm install @liushengyi/smartdb --save
 ### 1 创建UserDao
 
 ```ts
-import sql from "@liushengyi/smartdb"
+import sql from "@zhongyanlin523/smartdb"
 
 export class User {
   @sql.SqlColumn(sql.ColumnType.INTEGER)
@@ -96,7 +96,7 @@ export const userDao = new UserDao()
 ### 2 创建数据库管理
 
 ```ts
-import sql from '@liushengyi/smartdb';
+import sql from '@zhongyanlin523/smartdb';
 import { userDao } from './UserDao';
 import relationalStore from '@ohos.data.relationalStore';
 
@@ -149,7 +149,7 @@ userDao.insert(100, "name100")
 ## 5 支持事务
 
 ```ets
-import sql from '@liushengyi/smartdb'
+import sql from '@zhongyanlin523/smartdb'
 import { User, userDao } from '../UserDao'
 
 @sql.Transactional()
@@ -192,4 +192,4 @@ class UserDao2 {
 
 ## 开源协议
 
-本项目基于 [Apache License 2.0](https://github.com/liushengyi/smartdb/blob/master/library/LICENSE) ，请自由地享受和参与开源。
+本项目基于 [Apache License 2.0](https://github.com/zhongyanlin523/smartdb/blob/master/smartdblibrary/LICENSE) ，请自由地享受和参与开源。
