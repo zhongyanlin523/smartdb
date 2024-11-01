@@ -2,6 +2,7 @@ import relationalStore from '@ohos.data.relationalStore';
 import Logger from './Logger'
 import dataPreferences from '@ohos.data.preferences';
 import { DbOpenHelper } from './DbOpenHelper';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 /**
  * 存储所有的dbHelper
@@ -10,7 +11,6 @@ const dbHelpers = {}
 
 export class DbHelper {
   dbContext: any;
-  customDir: string = '';
   storeConfig: relationalStore.StoreConfig
   dbVersion: number = 0
   rdbStore: relationalStore.RdbStore
@@ -18,7 +18,7 @@ export class DbHelper {
   async initDb(context: any, dbName: string, customDir: string, dbVersion: number, dbOpenHelper: DbOpenHelper) {
     await this.initDbWithConfig(context, {
       name: dbName,
-      customDir: this.customDir,
+      customDir: customDir,
       securityLevel: relationalStore.SecurityLevel.S1
     }, dbVersion, dbOpenHelper)
   }
@@ -59,6 +59,16 @@ export class DbHelper {
 
     //bind当前db
     dbHelpers[dbName] = this
+  }
+
+  deleteRdbStore(){
+    relationalStore.deleteRdbStore(this.dbContext, this.storeConfig, (err: BusinessError) => {
+      if (err) {
+        console.error(`Delete RdbStore failed, code is ${err.code},message is ${err.message}`);
+        return;
+      }
+      console.info('Delete RdbStore successfully.');
+    })
   }
 
   getRdbStore(): Promise<relationalStore.RdbStore> {
