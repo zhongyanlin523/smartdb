@@ -1,4 +1,4 @@
-# zmkjsmartdb
+# smartdb
 
 ## 简介
 
