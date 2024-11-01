@@ -7,7 +7,7 @@
 ## 下载安装
 
 ```
-ohpm install @zhongyanlin/zmsmartdb --save
+ohpm install @zhongyanlin523/zmsmartdb --save
 ```
 
 ## 使用
