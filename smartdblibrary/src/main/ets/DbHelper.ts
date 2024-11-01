@@ -32,7 +32,7 @@ export class DbHelper {
     this.storeConfig = storeConfig
     this.dbVersion = dbVersion
     if (this.rdbStore) {
-      this.rdbStore.close()
+      // this.rdbStore.close() //适配跨平台
       this.rdbStore = null
     }
     let dbPreferenceKey = `smartdb_preference`
